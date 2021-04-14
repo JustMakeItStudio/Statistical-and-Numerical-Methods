@@ -11,7 +11,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 df = DataFrame({'A': range(10),
                 'B': [sin(i) for i in range(10)] #[1, 2,1,10,5,3,3,4,5,6]#
                 }, index=range(10))   
-
+df_new = df.copy()
 method = 0
 isrunAppagain = False
 listNum = 0
@@ -19,8 +19,8 @@ listNum = 0
 app = Tk()
 app.config(bg='lightgray')
 app.title("The title of the project")
-app.geometry("800x600")
-app.minsize(1000, 700)
+#app.geometry("900x700")
+app.minsize(1050, 600)
 app.rowconfigure(0, weight=1)
 app.columnconfigure(3, weight=1)
 
@@ -54,13 +54,21 @@ def interpMethodsList():
     lbm.insert(END, 'Interpolation: Cubic')
     lbm.insert(END, 'Interpolation: Hermite')
 
+def copyDF():
+    global df, df_new, figure1, ax1
+    df = df_new.copy()
+    df1 = df.loc[0:,'B']
+    ax1.cla()
+    df1.plot(kind='line', legend=True, ax=ax1, color='r', marker='o', fontsize=10)
+    figure1.canvas.draw_idle()
+
 def oneDiff():
     global df
-    y_dot = [0] * (len(df)-1)
+    y_dot = [0] * (len(df))
     x = df['A']
     y = df['B']
     h = x[1] - x[0] # step
-    for i in range(0, len(x)-1, 1):
+    for i in range(0, len(y)-1, 1):
         y_dot[i] = (y[i+1] - y[i]) / h 
     y_dot = DataFrame({'A': range(len(y_dot)),
                 'B': y_dot
@@ -69,11 +77,11 @@ def oneDiff():
 
 def twoDiff():
     global df
-    y_dot = [0] * (len(df)-1)
+    y_dot = [0] * (len(df))
     x = df['A']
     y = df['B']
     h = x[1] - x[0] # step
-    for i in range(1, len(x)-1, 1):
+    for i in range(1, len(y)-1, 1):
         y_dot[i] = (y[i+1] - y[i-1]) /(2*h)
     y_dot = DataFrame({'A': range(len(y_dot)),
                 'B': y_dot
@@ -82,11 +90,11 @@ def twoDiff():
 
 def threeDiff():
     global df
-    y_dot = [0] * (len(df)-1)
+    y_dot = [0] * (len(df))
     x = df['A']
     y = df['B']
     h = x[1] - x[0] # step
-    for i in range(1, len(x), 1):
+    for i in range(1, len(y), 1):
         y_dot[i] = (y[i] - y[i-1]) / h 
     y_dot = DataFrame({'A': range(len(y_dot)),
                 'B': y_dot
@@ -95,11 +103,11 @@ def threeDiff():
 
 def fourDiff():
     global df
-    y_dot = [0] * (len(df)-1)
+    y_dot = [0] * (len(df))
     x = df['A']
     y = df['B']
     h = x[1] - x[0] # step
-    for i in range(0, len(x)-2, 1):
+    for i in range(0, len(y)-2, 1):
         y_dot[i] = (-y[i+2] + 4*y[i+1] - 3*y[i]) / (2*h) 
     y_dot = DataFrame({'A': range(len(y_dot)),
                 'B': y_dot
@@ -108,11 +116,11 @@ def fourDiff():
 
 def fiveDiff():
     global df
-    y_dot = [0] * (len(df)-1)
+    y_dot = [0] * (len(df))
     x = df['A']
     y = df['B']
     h = x[1] - x[0] # step
-    for i in range(2, len(x)-2, 1):
+    for i in range(2, len(y)-2, 1):
         y_dot[i] = (y[i-2] - y[i+2] + 8*y[i+1] -8*y[i-1]) / (12*h) 
     y_dot = DataFrame({'A': range(len(y_dot)),
                 'B': y_dot
@@ -121,11 +129,12 @@ def fiveDiff():
 
 def sixDiff():
     global df
-    y_dot = [0] * (len(df)-1)
+    y_dot = [0] * (len(df))
     x = df['A']
     y = df['B']
     h = x[1] - x[0] # step
-    for i in range(2, len(x), 1):
+    print(f'The length of y is: {len(y)}')
+    for i in range(2, len(y), 1):
         y_dot[i] = (3*y[i] - 4*y[i-1] + y[i-2]) / (2*h) 
     y_dot = DataFrame({'A': range(len(y_dot)),
                 'B': y_dot
@@ -193,6 +202,7 @@ def threeInterp():
     return y_int
 
 def fourInterp():
+    #Hermite Interpolation
     #Tension: 1 is high, 0 normal, -1 is low
     #Bias: 0 is even, positive is towards first segment, negative towards the other
     tension = 0
@@ -212,20 +222,20 @@ def fourInterp():
             m0 += (y[i+2]-y[i+1])*(1-bias)*(1-tension)/2
             m1  = (y[i+2]-y[i+1])*(1+bias)*(1-tension)/2
             m1 += (y[i+3]-y[i+2])*(1-bias)*(1-tension)/2
-            a0 =  2*mu3 - 3*mu2 + 1
-            a1 =    mu3 - 2*mu2 + mu
-            a2 =    mu3 -   mu2
+            a0 = 2*mu3 - 3*mu2 + 1
+            a1 = mu3 - 2*mu2 + mu
+            a2 = mu3 - mu2
             a3 = -2*mu3 + 3*mu2
             y_int[c] = a0*y[i+1]+a1*m0+a2*m1+a3*y[i+2]
             c += 1               
     y_int = DataFrame({'A': [i/step for i in range(len(y_int))] ,
                 'B': y_int
-                })#, index=range(len(y_int)))
+            })#, index=range(len(y_int)))
     return y_int
 
 def runApp(method, listNum):
     # Process the data
-    global isrunAppagain, figure2, ax2, df
+    global isrunAppagain, figure2, ax2, df, df_new
     name = ''
     df2 = df.copy()
     if method == 0:
@@ -287,7 +297,7 @@ def runApp(method, listNum):
     if method == (5,) and listNum == 3:
         df2 = sixInterp()
         name = 'Integration: '  
-
+    df_new = df2.copy()
     if isrunAppagain==False:
         isrunAppagain = True
         df2 = df.loc[0:,'B']
@@ -328,9 +338,13 @@ bt2 = Button(fr2_bt, text="Integration methods", font=('Helvetica',14), command=
 bt2.pack(side=LEFT)
 bt3 = Button(fr2_bt, text='Interpolation methods', font=('Helvetica', 14), command=interpMethodsList)
 bt3.pack(side=RIGHT)
+
 # Middle frame for graphs
 fr_plot = Frame(app)
 fr_plot.grid(row=0, column=1, sticky=N+S) 
+
+lbl2 = Label(fr_plot, text='Plots', fg='black', font=('Helvetica', 16, 'bold'))
+lbl2.pack(side=TOP, fill=X)
 
 figure1 = plt.Figure(figsize=(5,4), dpi=80)
 ax1 = figure1.add_subplot()
@@ -340,8 +354,14 @@ df1 = df.iloc[:,1]
 df1.plot(kind='line', legend=True, ax=ax1, color='r', marker='o', fontsize=10)
 ax1.set_title('Initial data')
 
-bt4 = Button(fr_plot, text='Run', font=('Helvetica', 14), command=lambda: runApp(lbm.curselection(), listNum))
-bt4.pack()
+# Middle frame for buttons for the graphs
+fr_plot_buttons = Frame(fr_plot)
+fr_plot_buttons.pack(fill=BOTH)
+
+bt4 = Button(fr_plot_buttons, text='Run', font=('Helvetica', 14), command=lambda: runApp(lbm.curselection(), listNum))
+bt4.pack(side=LEFT)
+bt5 = Button(fr_plot_buttons, text='Reload', font=('Helvetica', 14), command=lambda: copyDF())
+bt5.pack( side=RIGHT)
 
 figure2 = plt.Figure(figsize=(5,4), dpi=80)
 ax2 = figure2.add_subplot()
@@ -349,9 +369,12 @@ line2 = FigureCanvasTkAgg(figure2, fr_plot)
 line2.get_tk_widget().pack(side=BOTTOM, fill=X)
 ax2.set_title('Processed data')
 
-#lbl3 = Label(fr_plot, text='Plot 2. Processed data.', fg='black', font=('Helvetica', 12, 'italic'))
-#lbl3.pack(side=BOTTOM)
+# Right frame for details
+fr_details = Frame(app)
+fr_details.grid(row=0, column=2, sticky=N+S) 
 
+lbl3 = Label(fr_details, text='Details', fg='black', font=('Helvetica', 16, 'bold'))
+lbl3.pack(side=TOP, fill=X)
 
 
 app.mainloop()
