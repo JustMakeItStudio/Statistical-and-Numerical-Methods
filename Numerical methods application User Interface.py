@@ -2,7 +2,6 @@
 
 from tkinter import *
 from pandas import *
-from numpy import arange
 from math import sin, cos, pi
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -287,16 +286,16 @@ def runApp(method, listNum):
         name = 'Interpolation: Cosine'
     if method == (2,) and listNum == 3:
         df2 = threeInterp()
-        name = 'Integration: Cubic'
+        name = 'Interpolation: Cubic'
     if method == (3,) and listNum == 3:
         df2 = fourInterp()
-        name = 'Integration: ' 
+        name = 'Interpolation: Hermite' 
     if method == (4,) and listNum == 3:
         df2 = fiveInterp()
-        name = 'Integration: '   
+        name = 'Interpolation: '   
     if method == (5,) and listNum == 3:
         df2 = sixInterp()
-        name = 'Integration: '  
+        name = 'Interpolation: '  
     df_new = df2.copy()
     if isrunAppagain==False:
         isrunAppagain = True
