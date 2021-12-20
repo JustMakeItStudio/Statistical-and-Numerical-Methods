@@ -29,7 +29,7 @@ $ pip install pandas
 
 To clone the repository, open the command prompt at the directory of choise and type:
 ```sh
-$  git clone --recursive https://github.com/rocku0/Statistical-and-Numerical-Methods.git
+$  git clone --recursive https://github.com/JustMakeItStudio/Statistical-and-Numerical-Methods.git
 ```
 
 
